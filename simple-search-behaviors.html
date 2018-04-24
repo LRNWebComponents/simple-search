@@ -1,0 +1,120 @@
+<link rel="import" href="../responsive-utility/responsive-utility.html">
+<!--
+`simple-search-behaviors`
+A set of behaviors for simple-search components.
+@microcopy - the mental model for this element
+ - 
+ - 
+-->
+
+<script>
+  window.simpleSearchBehaviors = window.simpleSearchBehaviors || {};
+  // ensure we have consistent reporting of haxBodyProperties
+  window.simpleSearchBehaviors.SearchBehaviors = {
+    properties: {
+      /*
+       * label for search box
+       */
+      label: {
+        type: String,
+        value: 'search',
+      },
+      /*
+       * an array of search terms
+       */
+      searchTerms: {
+        type: Array,
+        value: [],
+      },
+    },
+    ready: function(){
+      let root = this, search = root.$.input;
+      root._getSearchText(search.value);
+      root.addEventListener('change',function(e){
+        root._getSearchText(search.value);
+        root.fire('search',root);
+      });
+    },
+    /** 
+      * gets the tab-index of cues based on whether or not interactive cues are disabled
+      */
+      _getSearchText: function(find){
+      let temp = new Array();
+      if(find !== undefined && find !== null) {
+        temp = find.split(/[\"\']/gm);
+        for (let i=0; i<temp.length;i++){
+          temp[i] = temp[i].trim();
+          if (temp[i] === '') temp.splice(i,1)
+        }
+      }
+      this.set('searchTerms',temp.slice(0));
+    },
+    /** 
+      * search a string of content for any terms and return an array of results, 
+      * for example if I searched for the with 
+      * findMatches("The quick brown fox jumps over the lazy dog."), 
+      * the array would be:
+      * [
+      *   {
+      *     "matched": true, 
+      *     "text": "The"
+      *   },{
+      *     "matched": false, 
+      *     "text": " quick brown fox jumps over "
+      *   },{
+      *     "matched": true, 
+      *     "text": "the"
+      *   },{
+      *     "matched": false, 
+      *     "text": " lazy dog."
+      *   }
+      * ]
+      *
+      * or findMatches("The quick brown fox jumps over the lazy dog.",true), 
+      * the array would be:
+      * [
+      *   {
+      *     "matched": false, 
+      *     "text": "The quick brown fox jumps over "
+      *   },{
+      *     "matched": true, 
+      *     "text": "the"
+      *   },{
+      *     "matched": false, 
+      *     "text": " lazy dog."
+      *   }
+      * ]
+      */
+    findMatches: function(content,caseSensitive){
+      let root = this, terms = root.searchTerms, modifier = caseSensitive ? "gm" : "gim", results = [
+        {
+          "matched": false, 
+          "text": content
+        }
+      ], updateResults = function(find){
+        for(let i = 0; i<results.length; i++){
+          if (results[i].matched === false){
+            let regex = new RegExp("\\b"+find+"\\b",modifier), text = results[i].text, start = text.search(regex), end = start+find.length;
+            if(start > -1){
+              let pre = text.slice(0,start), match = text.slice(start,end), post = text.slice(end,content.length), update = results.splice(i,1,{
+                "matched": false, 
+                "text": pre
+              },{
+                "matched": true, 
+                "text": match
+              },{
+                "matched": false, 
+                "text": post
+              });
+            } 
+          }
+        }
+      };
+      for (let i=0; i<terms.length;i++){
+        updateResults(terms[i]);
+      }
+      return results;
+    },
+  };
+</script>
+
