@@ -12,6 +12,42 @@ A button used in simple-search
 @microcopy - the mental model for this element
   <simple-search label="find something"></simple-search>
 
+  The searchTerms property provides an array of search terms entered in to the input.
+  The findMatches function returns an array of parsed results.  
+  For example if I searched for the with 
+  findMatches("The quick brown fox jumps over the lazy dog."), 
+  the array would be:
+  [
+    {
+      "matched": true, 
+      "text": "The"
+    },{
+      "matched": false, 
+      "text": " quick brown fox jumps over "
+    },{
+      "matched": true, 
+      "text": "the"
+    },{
+      "matched": false, 
+      "text": " lazy dog."
+    }
+  ]
+  or findMatches("The quick brown fox jumps over the lazy dog.",true), 
+  the array would be:
+  [
+    {
+      "matched": false, 
+      "text": "The quick brown fox jumps over "
+    },{
+      "matched": true, 
+      "text": "the"
+    },{
+      "matched": false, 
+      "text": " lazy dog."
+    }
+  ]
+
+
 -->
 
 <dom-module id="simple-search">
