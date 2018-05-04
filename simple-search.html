@@ -244,7 +244,6 @@ A button used in simple-search
         * are there any results to navigate?
         */
       _hasNoResults: function(resultCount){
-        console.log(resultCount);
         return resultCount < 1;
       },
       /**
@@ -304,7 +303,6 @@ A button used in simple-search
       enableSearch: function(input,output,attr){
         output = output !== undefined ? output : input, inner = input.innerHTML, attr = attr !== undefined ? attr : 'match-number';
         search.target = output;
-        console.log(input,output,inner);
         search.addEventListener('search',function(){
           let matches = search.findMatches(inner), content = '';
           for(let i=0;i<matches.length;i++){
