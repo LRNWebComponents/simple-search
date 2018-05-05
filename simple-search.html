@@ -231,6 +231,8 @@ A button used in simple-search
         root._getSearchText(search.value);
         root.addEventListener('change',function(e){
           root._getSearchText(search.value);
+          root.resultCount = 0;
+          root.resultPointer = 0;
           root.fire('search',root);
         });
         root.$.prev.addEventListener('tap',function(e){
@@ -239,6 +241,7 @@ A button used in simple-search
         root.$.next.addEventListener('tap',function(e){
           root._navigateResults(1);
         });
+        
       },
       /**
         * are there any results to navigate?
@@ -302,18 +305,27 @@ A button used in simple-search
         */
       enableSearch: function(input,output,attr){
         output = output !== undefined ? output : input, inner = input.innerHTML, attr = attr !== undefined ? attr : 'match-number';
+        let root = this;
         search.target = output;
         search.addEventListener('search',function(){
-          let matches = search.findMatches(inner), content = '';
-          for(let i=0;i<matches.length;i++){
-            if (matches[i].matched===true){
-              content += '<span '+attr+'="'+matches[i].matchNumber+'" tabindex="0">'+matches[i].text+'</span>';
-            } else {
-              content += matches[i].text;
-            }
-          }
-          output.innerHTML = content;
+          output.innerHTML = this.search(input,attr);
         });
+      },
+      /** 
+        * searches an input and places results in an output 
+        * (or into same input if output not specified)
+        * and wraps each match in a span with a match number for navigation
+        */
+      search: function(input,attr){
+        let matches = search.findMatches(inner), content = '';
+        for(let i=0;i<matches.length;i++){
+          if (matches[i].matched===true){
+            content += '<span '+attr+'="'+matches[i].matchNumber+'" tabindex="0">'+matches[i].text+'</span>';
+          } else {
+            content += matches[i].text;
+          }
+        }
+        return content;
       },
       /** 
         * search a string of content for any terms and return an array of results. 
@@ -355,7 +367,7 @@ A button used in simple-search
         * ]
         */
       findMatches: function(content,caseSensitive){
-        let root = this, terms = root.searchTerms, modifier = caseSensitive ? "gm" : "gim", ctr = 0, results = [
+        let root = this, terms = root.searchTerms, modifier = caseSensitive ? "gm" : "gim", results = [
           {
             "matched": false, 
             "text": content
@@ -365,13 +377,13 @@ A button used in simple-search
             if (results[i].matched === false){
               let regex = new RegExp("\\b"+find+"\\b",modifier), text = results[i].text, start = text.search(regex), end = start+find.length;
               if(start > -1){
-                ctr++;
+                root.resultCount += 1;
                 let pre = text.slice(0,start), match = text.slice(start,end), post = text.slice(end,content.length), update = results.splice(i,1,{
                   "matched": false, 
                   "text": pre
                 },{
                   "matched": true, 
-                  "matchNumber": ctr, 
+                  "matchNumber": root.resultCount, 
                   "text": match
                 },{
                   "matched": false, 
@@ -384,8 +396,6 @@ A button used in simple-search
         for (let i=0; i<terms.length;i++){
           updateResults(terms[i]);
         }
-        this.resultCount = ctr;
-        this.resultPointer = 0;
         return results;
       }
     });
