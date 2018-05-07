@@ -13,6 +13,9 @@ A button used in simple-search-content
 
 <dom-module id="simple-search-content">
   <style>
+    :host #content {
+      @apply --simple-search-content;
+    }
     :host #content [match-number]{
       background-color: #f0f0f0;
       border: 1px solid #dddddd;
