@@ -346,13 +346,13 @@ A button used in simple-search
         * ]
         */
       findMatches: function(content,caseSensitive){
-        let root = this, terms = root.searchTerms, modifier = caseSensitive ? "gm" : "gim", updateResults = function(find){
-          for(let i = 0; i<content.length; i++){
-            if (content[i].matched === false){
-              let regex = new RegExp("\\b"+find+"\\b",modifier), text = content[i].text, start = text.search(regex), end = start+find.length;
+        let root = this, terms = root.searchTerms, modifier = caseSensitive ? "gm" : "gim", results = content.slice(0), updateResults = function(find){
+          for(let i = 0; i<results.length; i++){
+            if (results[i].matched === false){
+              let regex = new RegExp("\\b"+find+"\\b",modifier), text = results[i].text, start = text.search(regex), end = start+find.length;
               if(start > -1){
                 root.resultCount += 1;
-                let pre = text.slice(0,start), match = text.slice(start,end), post = text.slice(end,text.length), update = content.splice(i,1,{
+                let pre = text.slice(0,start), match = text.slice(start,end), post = text.slice(end,text.length), update = results.splice(i,1,{
                   "matched": false, 
                   "text": pre,
                   "searchObject": root
@@ -373,7 +373,7 @@ A button used in simple-search
         for (let i=0; i<terms.length;i++){
           updateResults(terms[i]);
         }
-        return content;
+        return results;
       }
     });
   </script>

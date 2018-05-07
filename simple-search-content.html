@@ -25,7 +25,7 @@ A button used in simple-search-content
   </style>
   <template>
     <div id="content">
-      <template is="dom-repeat" items="[[content]]">
+      <template is="dom-repeat" items="[[searchedContent]]">
         <span match-number$="[[item.matchNumber]]" tabindex$="[[_getTabIndex(item.matchNumber)]]">[[item.text]]</span>
       </template>
     </div>
@@ -38,7 +38,20 @@ A button used in simple-search-content
 
       properties: {
         /**
-          * Array of content. For example:
+          * Array of original content. For example:
+          * [
+          *   {
+          *     "matched": false, 
+          *     "text": "The quick brown fox jumps over the lazy dog."
+          *   }
+          * ]
+          */
+        content: {
+          type: Array,
+          value: [],
+        },
+        /**
+          * Array of searched content. For example:
           * [
           *   {
           *     "matched": false, 
@@ -53,7 +66,7 @@ A button used in simple-search-content
           *   }
           * ]
           */
-        content: {
+        searchedContent: {
           type: Array,
           value: [],
         },
@@ -65,24 +78,43 @@ A button used in simple-search-content
           value: null,
         },
       },
+      /** 
+       * associates simple-search-content with a simple-search
+       */
       enableSearch: function(searchObject){
         let root = this;
+        // set rendered content to default unsearched content
+        root.setContent(root.content);
+        // listen for changes to search
         searchObject.addEventListener('search',function(){
+          // set rendered content to default unsearched content to clear old results
+          root.setContent(root.content);
+          // set rendered content to default search results
           root.setContent(searchObject.findMatches(root.content));
           root.fire('search-result',root);
         });
 
+        // listen for navigation through results
         searchObject.addEventListener('goto-result',function(e){
           root.focus(e.detail);
         });
       },
+      /** 
+       * sets array of content to be rendered
+       */
       setContent: function(newContent){
-        this.set('content',newContent.slice(0));
+        this.set('searchedContent',newContent.slice(0));
       },
+      /** 
+       * sets focus on a matched result based on match number
+       */
       focus: function(matchNumber){
         let result = this.$.content.querySelector('[match-number="'+matchNumber+'"]');
         if(result !== undefined && result !== null) result.focus();
       },
+      /** 
+       * gets tab index based on whether item is a match that can be focused on
+       */
       _getTabIndex: function(matchNumber){
         return matchNumber !== undefined && matchNumber !== null ? '1' : '';
       }
