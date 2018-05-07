@@ -24,7 +24,7 @@ A button used in simple-search-content
     }
   </style>
   <template>
-    <div id="content">
+    <div id="content" tabindex="0">
       <template is="dom-repeat" items="[[content]]">
         <span match-number$="[[item.matchNumber]]" tabindex$="[[_getTabIndex(item.matchNumber)]]">[[item.text]]</span>
       </template>
