@@ -160,7 +160,7 @@ A button used in simple-search
           */
         prevButtonDisabled: {
           type: Boolean,
-          computed: '_isNavButtonDisabled(resultPointer,resultCount,resultsSpan,-1)',
+          computed: '_isNavButtonDisabled(target,resultPointer,resultCount,resultsSpan,-1)',
         },
         /**
           * label for previous result icon
@@ -275,13 +275,15 @@ A button used in simple-search
         if (!this._isNavButtonDisabled(this.target,this.resultPointer,this.resultCount,this.resultsSpan,increment)) {
           this.resultPointer += increment;
           let match = this.target.querySelector('[match-number="'+this.resultPointer+'"]');
+          console.log(this.target.querySelector('[match-number]'));
           if (match !== undefined && match !== null) match.focus();
         }
       },
       /**
         * navigate results
         */
-      _isNavButtonDisabled: function(target,resultPointer,resultCount,resultsSpan,increment){
+      _isNavButtonDisabled: function(target,resultPointer,resultCount,resultsSpan,increment){  
+        let newPointer =  resultPointer+increment;
         return !(target !== undefined && target !== null && resultsSpan !== '' && resultPointer+increment > 0 && resultPointer+increment <= resultCount);
       },
       /** 
@@ -303,29 +305,21 @@ A button used in simple-search
         * (or into same input if output not specified)
         * and wraps each match in a span with a match number for navigation
         */
-      enableSearch: function(input,output,attr){
-        output = output !== undefined ? output : input, inner = input.innerHTML, attr = attr !== undefined ? attr : 'match-number';
-        let root = this;
+      enableSearch: function(input,output){
+        output = output !== undefined ? output : input;
+        let root = this, inner = input.innerHTML, content = '';
         search.target = output;
         search.addEventListener('search',function(){
-          output.innerHTML = this.search(input,attr);
-        });
-      },
-      /** 
-        * searches an input and places results in an output 
-        * (or into same input if output not specified)
-        * and wraps each match in a span with a match number for navigation
-        */
-      search: function(input,attr){
-        let matches = search.findMatches(inner), content = '';
-        for(let i=0;i<matches.length;i++){
-          if (matches[i].matched===true){
-            content += '<span '+attr+'="'+matches[i].matchNumber+'" tabindex="0">'+matches[i].text+'</span>';
-          } else {
-            content += matches[i].text;
+          let matches = root.findMatches(input);
+          for(let i=0;i<matches.length;i++){
+            if (matches[i].matched===true){
+              content += '<span match-number="'+matches[i].matchNumber+'" tabindex="0">'+matches[i].text+'</span>';
+            } else {
+              content += matches[i].text;
+            }
           }
-        }
-        return content;
+          output.innerHTML = content;
+        });
       },
       /** 
         * search a string of content for any terms and return an array of results. 
@@ -375,7 +369,7 @@ A button used in simple-search
         ], updateResults = function(find){
           for(let i = 0; i<results.length; i++){
             if (results[i].matched === false){
-              let regex = new RegExp("\\b"+find+"\\b",modifier), text = results[i].text, start = text.search(regex), end = start+find.length;
+              let regex = new RegExp("\\b"+find+"\\b",modifier), text = typeof(results[i].text) === 'object' ? results[i].text.innerHTML : results[i].text, start = text.search(regex), end = start+find.length;
               if(start > -1){
                 root.resultCount += 1;
                 let pre = text.slice(0,start), match = text.slice(start,end), post = text.slice(end,content.length), update = results.splice(i,1,{
