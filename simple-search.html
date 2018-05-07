@@ -2,6 +2,7 @@
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="simple-search-content.html">
 
 <!--
 `simple-search`
@@ -125,7 +126,7 @@ A button used in simple-search
           */
         nextButtonDisabled: {
           type: Boolean,
-          computed: '_isNavButtonDisabled(target,resultPointer,resultCount,resultsSpan,1)',
+          computed: '_isNavButtonDisabled(resultPointer,resultCount,resultsSpan,1)',
         },
         /**
           * label for next result icon
@@ -160,7 +161,7 @@ A button used in simple-search
           */
         prevButtonDisabled: {
           type: Boolean,
-          computed: '_isNavButtonDisabled(target,resultPointer,resultCount,resultsSpan,-1)',
+          computed: '_isNavButtonDisabled(resultPointer,resultCount,resultsSpan,-1)',
         },
         /**
           * label for previous result icon
@@ -272,18 +273,17 @@ A button used in simple-search
         * navigate results
         */
       _navigateResults: function(increment){
-        if (!this._isNavButtonDisabled(this.target,this.resultPointer,this.resultCount,this.resultsSpan,increment)) {
+        if (!this._isNavButtonDisabled(this.resultPointer,this.resultCount,this.resultsSpan,increment)) {
           this.resultPointer += increment;
-          let match = this.target.querySelector('[match-number="'+this.resultPointer+'"]');
-          if (match !== undefined && match !== null) match.focus();
+          this.fire('goto-result',this.resultPointer);
         }
       },
       /**
         * navigate results
         */
-      _isNavButtonDisabled: function(target,resultPointer,resultCount,resultsSpan,increment){  
+      _isNavButtonDisabled: function(resultPointer,resultCount,resultsSpan,increment){  
         let newPointer =  resultPointer+increment;
-        return !(target !== undefined && target !== null && resultsSpan !== '' && resultPointer+increment > 0 && resultPointer+increment <= resultCount);
+        return !(resultsSpan !== '' && resultPointer+increment > 0 && resultPointer+increment <= resultCount);
       },
       /** 
         * gets the tab-index of cues based on whether or not interactive cues are disabled
@@ -300,27 +300,6 @@ A button used in simple-search
         this.set('searchTerms',temp.slice(0));
       },
       /** 
-        * searches an input and places results in an output 
-        * (or into same input if output not specified)
-        * and wraps each match in a span with a match number for navigation
-        */
-      enableSearch: function(input,output){
-        output = output !== undefined ? output : input;
-        let root = this, inner = input.innerHTML, content = '';
-        search.target = output;
-        search.addEventListener('search',function(){
-          let matches = root.findMatches(input);
-          for(let i=0;i<matches.length;i++){
-            if (matches[i].matched===true){
-              content += '<span match-number="'+matches[i].matchNumber+'" tabindex="0">'+matches[i].text+'</span>';
-            } else {
-              content += matches[i].text;
-            }
-          }
-          output.innerHTML = content;
-        });
-      },
-      /** 
         * search a string of content for any terms and return an array of results. 
         * For example if I searched for the with 
         * findMatches("The quick brown fox jumps over the lazy dog."), 
@@ -329,17 +308,21 @@ A button used in simple-search
         *   {
         *     "matched": true, 
         *     "matchNumber": 1,
-        *     "text": "The"
+        *     "text": "The",
+        *     "searchObject": root
         *   },{
         *     "matched": false, 
-        *     "text": " quick brown fox jumps over "
+        *     "text": " quick brown fox jumps over ",
+        *     "searchObject": root
         *   },{
         *     "matched": true, 
         *     "matchNumber": 2,
-        *     "text": "the"
+        *     "text": "the",
+        *     "searchObject": root
         *   },{
         *     "matched": false, 
-        *     "text": " lazy dog."
+        *     "text": " lazy dog.",
+        *     "searchObject": root
         *   }
         * ]
         *
@@ -348,48 +331,49 @@ A button used in simple-search
         * [
         *   {
         *     "matched": false, 
-        *     "text": "The quick brown fox jumps over "
+        *     "text": "The quick brown fox jumps over ",
+        *     "searchObject": root
         *   },{
         *     "matched": true, 
         *     "matchNumber": 1, 
-        *     "text": "the"
+        *     "text": "the",
+        *     "searchObject": root
         *   },{
         *     "matched": false, 
-        *     "text": " lazy dog."
+        *     "text": " lazy dog.",
+        *     "searchObject": root
         *   }
         * ]
         */
       findMatches: function(content,caseSensitive){
-        let root = this, terms = root.searchTerms, modifier = caseSensitive ? "gm" : "gim", results = [
-          {
-            "matched": false, 
-            "text": content
-          }
-        ], updateResults = function(find){
-          for(let i = 0; i<results.length; i++){
-            if (results[i].matched === false){
-              let regex = new RegExp("\\b"+find+"\\b",modifier), text = typeof(results[i].text) === 'object' ? results[i].text.innerHTML : results[i].text, start = text.search(regex), end = start+find.length;
+        let root = this, terms = root.searchTerms, modifier = caseSensitive ? "gm" : "gim", updateResults = function(find){
+          for(let i = 0; i<content.length; i++){
+            if (content[i].matched === false){
+              let regex = new RegExp("\\b"+find+"\\b",modifier), text = content[i].text, start = text.search(regex), end = start+find.length;
               if(start > -1){
                 root.resultCount += 1;
-                let pre = text.slice(0,start), match = text.slice(start,end), post = text.slice(end,content.length), update = results.splice(i,1,{
+                let pre = text.slice(0,start), match = text.slice(start,end), post = text.slice(end,text.length), update = content.splice(i,1,{
                   "matched": false, 
-                  "text": pre
+                  "text": pre,
+                  "searchObject": root
                 },{
                   "matched": true, 
                   "matchNumber": root.resultCount, 
-                  "text": match
+                  "text": match,
+                  "searchObject": root
                 },{
                   "matched": false, 
-                  "text": post
+                  "text": post,
+                  "searchObject": root
                 });
-              } 
+              }
             }
           }
         };
         for (let i=0; i<terms.length;i++){
           updateResults(terms[i]);
         }
-        return results;
+        return content;
       }
     });
   </script>

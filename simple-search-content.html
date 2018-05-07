@@ -1,0 +1,91 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`simple-search-content`
+A button used in simple-search-content
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+  <simple-search-content label="find something"></simple-search-content>
+
+-->
+
+<dom-module id="simple-search-content">
+  <style>
+    :host #content [match-number]{
+      background-color: #f0f0f0;
+      border: 1px solid #dddddd;
+      padding: 0.1em 0.25em;
+      border-radius: 0.1em;
+      color: #000;
+      font-weight: bold;
+      @apply --simple-search-match;
+    }
+  </style>
+  <template>
+    <div id="content">
+      <template is="dom-repeat" items="[[content]]">
+        <span match-number$="[[item.matchNumber]]" tabindex$="[[_getTabIndex(item.matchNumber)]]">[[item.text]]</span>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'simple-search-content',
+
+      properties: {
+        /**
+          * Array of content. For example:
+          * [
+          *   {
+          *     "matched": false, 
+          *     "text": "The quick brown fox jumps over "
+          *   },{
+          *     "matched": true, 
+          *     "matchNumber": 1, 
+          *     "text": "the"
+          *   },{
+          *     "matched": false, 
+          *     "text": " lazy dog."
+          *   }
+          * ]
+          */
+        content: {
+          type: Array,
+          value: [],
+        },
+        /**
+          * Disable search
+          */
+          disableSearch: {
+          type: Object,
+          value: null,
+        },
+      },
+      enableSearch: function(searchObject){
+        let root = this;
+        searchObject.addEventListener('search',function(){
+          root.setContent(searchObject.findMatches(root.content));
+          root.fire('search-result',root);
+        });
+
+        searchObject.addEventListener('goto-result',function(e){
+          root.focus(e.detail);
+        });
+      },
+      setContent: function(newContent){
+        this.set('content',newContent.slice(0));
+      },
+      focus: function(matchNumber){
+        let result = this.$.content.querySelector('[match-number="'+matchNumber+'"]');
+        if(result !== undefined && result !== null) result.focus();
+      },
+      _getTabIndex: function(matchNumber){
+        return matchNumber !== undefined && matchNumber !== null ? '1' : '';
+      }
+    });
+  </script>
+</dom-module>
