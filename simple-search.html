@@ -275,7 +275,6 @@ A button used in simple-search
         if (!this._isNavButtonDisabled(this.target,this.resultPointer,this.resultCount,this.resultsSpan,increment)) {
           this.resultPointer += increment;
           let match = this.target.querySelector('[match-number="'+this.resultPointer+'"]');
-          console.log(this.target.querySelector('[match-number]'));
           if (match !== undefined && match !== null) match.focus();
         }
       },
