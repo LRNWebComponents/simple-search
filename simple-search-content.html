@@ -2,12 +2,14 @@
 
 <!--
 `simple-search-content`
-A button used in simple-search-content
+An inline element that can be searched with the seimple-search element
 
 @demo demo/index.html
 
 @microcopy - the mental model for this element
-  <simple-search-content label="find something"></simple-search-content>
+  <simple-search-content 
+    content="[[content]]"                // inline content to be searched
+  </simple-search-content>
 
 -->
 
@@ -27,11 +29,11 @@ A button used in simple-search-content
     }
   </style>
   <template>
-    <div id="content">
-      <template is="dom-repeat" items="[[searchedContent]]">
+    <span id="content">
+      <template is="dom-repeat" items="[[_searchedContent]]">
         <span match-number$="[[item.matchNumber]]" tabindex$="[[_getTabIndex(item.matchNumber)]]">[[item.text]]</span>
       </template>
-    </div>
+    </span>
   </template>
 
   <script>
@@ -41,43 +43,10 @@ A button used in simple-search-content
 
       properties: {
         /**
-          * Array of original content. For example:
-          * [
-          *   {
-          *     "matched": false, 
-          *     "text": "The quick brown fox jumps over the lazy dog."
-          *   }
-          * ]
+          * Original content. For example: "The quick brown fox jumps over the lazy dog."
           */
         content: {
-          type: Array,
-          value: [],
-        },
-        /**
-          * Array of searched content. For example:
-          * [
-          *   {
-          *     "matched": false, 
-          *     "text": "The quick brown fox jumps over "
-          *   },{
-          *     "matched": true, 
-          *     "matchNumber": 1, 
-          *     "text": "the"
-          *   },{
-          *     "matched": false, 
-          *     "text": " lazy dog."
-          *   }
-          * ]
-          */
-        searchedContent: {
-          type: Array,
-          value: [],
-        },
-        /**
-          * Disable search
-          */
-          disableSearch: {
-          type: Object,
+          type: String,
           value: null,
         },
       },
@@ -85,16 +54,16 @@ A button used in simple-search-content
        * associates simple-search-content with a simple-search
        */
       enableSearch: function(searchObject){
-        let root = this;
+        let root = this,content = [{"matched": false, "text": root.content}];
+        if(content[0].text === null) content[0].text = Polymer.dom(root).innerHTML;
         // set rendered content to default unsearched content
-        root.setContent(root.content);
+        root.setContent(content);
         // listen for changes to search
         searchObject.addEventListener('search',function(){
           // set rendered content to default unsearched content to clear old results
-          root.setContent(root.content);
+          root.setContent(content);
           // set rendered content to default search results
-          root.setContent(searchObject.findMatches(root.content));
-          root.fire('search-result',root);
+          root.setContent(searchObject.findMatches(content));
         });
 
         // listen for navigation through results
@@ -106,7 +75,7 @@ A button used in simple-search-content
        * sets array of content to be rendered
        */
       setContent: function(newContent){
-        this.set('searchedContent',newContent.slice(0));
+        this._searchedContent = newContent;
       },
       /** 
        * sets focus on a matched result based on match number
