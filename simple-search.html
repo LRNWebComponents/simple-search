@@ -55,12 +55,35 @@ A button used in simple-search
     }
   ]
 
+  CSS Variables:
+  For the input field...
+  --paper-input-container-input-color: var(--simple-search-input-color, #111);
+  --paper-input-container-focus-color: var(--simple-search-input-placeholder-color, #000);
+  --paper-input-container-color: var(--simple-search-media-input-line-color, #fff);
+  @apply --simple-search-container;
 
+  For buttons:
+  color: var(--simple-search-button-color, #111);
+  background-color: var(--simple-search-media-button-bg-color, #eee);
+  border-color: var(--simple-search-media-button-border-color, #ccc);
+  @apply --simple-search-button;
+
+  For buttons on hover:
+  color: var(--simple-search-button-hover-color, #000);
+  background-color: var(--simple-search-media-button-hover-bg-color, #fff);
+  border-color: var(--simple-search-media-button-hover-border-color, #ddd);
+  @apply --simple-search-button-hover;
+
+  For disabled buttons:
+  color: var(--simple-search-button-disabled-color, #666);
+  background-color: var(--simple-search-media-button-disabled-bg-color, #ccc);
+  border-color: var(--simple-search-media-button-disabled-border-color, #aaa);
+  @apply --simple-search-button-disabled;
 -->
 
 <dom-module id="simple-search">
   <template>
-    <style>
+    <style is="custom-style">
       :host {
         display: flex;
         align-items: flex-end;
@@ -70,12 +93,35 @@ A button used in simple-search
       :host #input {
         flex-grow: 2;
         margin-right: 0.25em;
+        --paper-input-container-input-color: var(--simple-search-input-color, #000);
+        --paper-input-container-focus-color: var(--simple-search-input-placeholder-color, #000);
+        --paper-input-container-color: var(--simple-search-media-input-line-color, #222);
+        @apply --simple-search-container;
       }
       :host #xofy {
         margin: 8px;
       }
       :host button {
         margin: 8px 0 8px;
+        color: var(--simple-search-button-color, #111);
+        background-color: var(--simple-search-media-button-bg-color, #eee);
+        border-color: var(--simple-search-media-button-border-color, #ccc);
+        @apply --simple-search-button;
+      }
+      :host button:not([disabled]):focus,
+      :host button:not([disabled]):hover {
+        cursor: pointer;
+        color: var(--simple-search-button-hover-color, #000);
+        background-color: var(--simple-search-media-button-hover-bg-color, #fff);
+        border-color: var(--simple-search-media-button-hover-border-color, #ddd);
+        @apply --simple-search-button-hover;
+      }
+      :host button[disabled] {
+        cursor: not-allowed;
+        color: var(--simple-search-button-disabled-color, #666);
+        background-color: var(--simple-search-media-button-disabled-bg-color, #ccc);
+        border-color: var(--simple-search-media-button-disabled-border-color, #aaa);
+        @apply --simple-search-button-disabled;
       }
       :host button:not([controls]) {
         display: none;
@@ -100,12 +146,12 @@ A button used in simple-search
       </button>
       <paper-tooltip for="prev">[[prevButtonLabel]]</paper-tooltip>
       <button
-      id="next" 
-      aria-label="[[nextButtonLabel]]" 
-      aria-role="button" 
-      controls$="[[controls]]" 
-      disabled$="[[nextButtonDisabled]]" 
-      tabindex="0">
+        id="next" 
+        aria-label="[[nextButtonLabel]]" 
+        aria-role="button" 
+        controls$="[[controls]]" 
+        disabled$="[[nextButtonDisabled]]" 
+        tabindex="0">
         <iron-icon icon$="[[nextButtonIcon]]"></iron-icon>
       </button>
       <paper-tooltip for="next">[[nextButtonLabel]]</paper-tooltip>
