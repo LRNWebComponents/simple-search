@@ -130,7 +130,10 @@ A button used in simple-search
         display: none;
       }
     </style>
-    <paper-input id="input" label="[[searchInputLabel]]">
+    <paper-input id="input" 
+      always-float-label$="[[alwaysFloatLabel]]"
+      label="[[searchInputLabel]]" 
+      no-label-float$="[[noLabelFloat]]">
       <iron-icon icon="[[searchInputIcon]]" slot="prefix"></iron-icon>
     </paper-input>
     <div id="xofy" shrink-hide$="[[noSearch]]"></div>
@@ -165,6 +168,13 @@ A button used in simple-search
 
       properties: {
         /**
+          * float the label
+          */
+        alwaysFloatLabel: {
+          type: Boolean,
+          value: false
+        }
+        /**
           * Is the search case-sensitive
           */
         caseSensitive: {
@@ -176,7 +186,7 @@ A button used in simple-search
           */
         controls: {
           type: String,
-          value: null,
+          value: null
         },
         /**
           * is the previous next button disabled
@@ -199,6 +209,13 @@ A button used in simple-search
           type: String,
           value: 'next result',
         },
+        /**
+          * float the label
+          */
+        noLabelFloat: {
+          type: Boolean,
+          value: false
+        }
         /**
           * are there any results to navigate?
           */
