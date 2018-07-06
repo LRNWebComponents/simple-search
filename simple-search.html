@@ -347,7 +347,7 @@ A button used in simple-search
         * navigate results
         */
       _navigateResults: function(increment){
-        if (!this._isNavButtonDisabled(this.resultPointer,this.resultCount,this.resultsSpan,increment)) {
+        if (this.resultPointer+increment > 0 && this.resultPointer+increment <= this.resultCount) {
           this.resultPointer += increment;
           this.fire('goto-result',this.resultPointer);
         }
@@ -356,8 +356,7 @@ A button used in simple-search
         * navigate results
         */
       _isNavButtonDisabled: function(resultPointer,resultCount,resultsSpan,increment){  
-        let newPointer =  resultPointer+increment;
-        return !(resultsSpan !== '' && resultPointer+increment > 0 && resultPointer+increment <= resultCount);
+        return resultsSpan == '' || resultPointer+increment <= 0 || resultPointer+increment > resultCount;
       },
       /** 
         * gets the tab-index of cues based on whether or not interactive cues are disabled
@@ -447,6 +446,7 @@ A button used in simple-search
         for (let i=0; i<terms.length;i++){
           updateResults(terms[i]);
         }
+        root.resultPointer = 0;
         return results;
       }
     });
