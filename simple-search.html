@@ -93,9 +93,9 @@ A button used in simple-search
       :host #input {
         flex-grow: 2;
         margin-right: 0.25em;
-        --paper-input-container-input-color: var(--simple-search-input-color, #000);
-        --paper-input-container-focus-color: var(--simple-search-input-placeholder-color, #000);
-        --paper-input-container-color: var(--simple-search-input-line-color, #222);
+        --paper-input-container-input-color: var(--simple-search-input-text-color, #000);
+        --paper-input-container-focus-color: var(--simple-search-input-line-color, #000);
+        --paper-input-container-color: var(--simple-search-input-placeholder-color, #222);
         @apply --simple-search-container;
       }
       :host #xofy {
@@ -118,9 +118,9 @@ A button used in simple-search
       }
       :host button[disabled] {
         cursor: not-allowed;
-        color: var(--simple-search-button-disabled-color, #666);
-        background-color: var(--simple-search-button-disabled-bg-color, #ccc);
-        border-color: var(--simple-search-button-disabled-border-color, #aaa);
+        color: var(--simple-search-button-disabled-color, #999);
+        background-color: var(--simple-search-button-disabled-bg-color, #eee);
+        border-color: var(--simple-search-button-disabled-border-color, #ccc);
         @apply --simple-search-button-disabled;
       }
       :host button:not([controls]) {
